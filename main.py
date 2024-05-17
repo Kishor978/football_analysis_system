@@ -1,6 +1,7 @@
 from utils.video_utils import video_read,video_write
 from trackers.tracker import Tracker
-from team_assignment import TeamAssigner
+from team_assignment import TeamAssigner,PlayerBallAssigner
+
 import cv2
 
 def main():
@@ -26,7 +27,15 @@ def main():
             tracks['players'][frame_num][players_id]['team']=team
             tracks['players'][frame_num][players_id]['team_color']=team_assigner.team_colors[team]
             
-    
+    # ball aquisition
+    player_assigner=PlayerBallAssigner()
+    for frame_num,player_track in enumerate(tracks['players']):
+        ball_box=tracks['ball'][frame_num][1]['bbox']
+        assinged_player=player_assigner.assign_ball_to_players(player_track,ball_box)
+        
+        if assinged_player !=-1:
+            tracks['players'][frame_num][assinged_player]['has_ball']=True
+        
     # # save cropped image of a player
     # for track_id,player in tracks["players"][0].items():
     #     bbox=player['bbox']
