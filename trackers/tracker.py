@@ -1,5 +1,6 @@
 from ultralytics import YOLO
 import supervision as sv
+import numpy as np
 import pickle
 import os
 import cv2
@@ -76,10 +77,10 @@ class Tracker:
 
         return tracks    
     
-    def draw_ellipse(self,frame,bounding_box,color,track_id=None):
-        y2=int(bounding_box[3])
-        x_center,_=get_center(bounding_box)
-        width=get_bbox_width(bounding_box)
+    def draw_ellipse(self,frame,bbox,color,track_id=None):
+        y2=int(bbox[3])
+        x_center,_=get_center(bbox)
+        width=get_bbox_width(bbox)
         cv2.ellipse(frame,(x_center,y2),
                     axes=(int(width),int(0.35*width)),
                     angle=0,
@@ -96,9 +97,10 @@ class Tracker:
         
         if track_id is not None:
             cv2.rectangle(frame,
-                          int(x1_rect),int(y1_rect),
-                          int(x2_rect),int(y2_rect),
-                          color,cv2.FILLED)
+                          (int(x1_rect),int(y1_rect)),
+                          (int(x2_rect),int(y2_rect)),
+                          color,
+                          cv2.FILLED)
             x1_text=x1_rect+12
             if track_id>99:
                 x1_text-=10
@@ -112,6 +114,19 @@ class Tracker:
         
         return frame
     
+    def draw_triangle(self,frame,bbox,color):
+        y=int(bbox[1])
+        x,_=get_center(bbox)
+        triangle_points=np.array([(x,y),
+                                  (x-10,y-20),
+                                  (x+10,y-20)])
+        cv2.drawContours(frame,[triangle_points],0,color,cv2.FILLED)
+        cv2.drawContours(frame,[triangle_points],0,(0,0,0),2)
+        return frame
+        
+        
+        
+    
     def draw_annotations(self,video_frames,tracks):
         output_frames=[]
         for frame_num,frame in enumerate(video_frames):
@@ -123,11 +138,13 @@ class Tracker:
             
             #draw player bounding boxes
             for track_id,player in player_dict.items():
-                frame=self.draw_ellipse(frame,player["bounding_box"],(0,255,0),track_id)
+                frame=self.draw_ellipse(frame,player["bbox"],(0,255,0),track_id)
                 # Draw Referee
             for _, referee in referee_dict.items():
                 frame = self.draw_ellipse(frame, referee["bbox"],(0,255,255))
-            
+            #Draw Ball
+            for track_id,ball in ball_dict.items():
+                frame=self.draw_triangle(frame,ball["bbox"],(0,0,255))
             output_frames.append(frame)
             
         return output_frames
