@@ -6,15 +6,15 @@ class PrespectiveTransformer():
         court_length = 23.32
         court_width = 68
         
-        self.pixel_vertices=np.array({[110,1035],
+        self.pixel_vertices=np.array([[110,1035],
                                      [265,275],
                                      [910,260],
-                                     [1640,915]})
+                                     [1640,915]])
         
-        self.target_vertices=np.array({[0,court_width],
+        self.target_vertices=np.array([[0,court_width],
                                       [0,0],
                                       [court_length,0],
-                                      [court_length,court_width]})
+                                      [court_length,court_width]])
         self.pixel_vertices=self.pixel_vertices.astype(np.float32)
         self.target_vertices=self.target_vertices.astype(np.float32)
         
@@ -36,7 +36,7 @@ class PrespectiveTransformer():
                 for track_id,track_info in tracks.items():
                     position=track_info['position_adjusted']
                     position=np.array(position)
-                    position_transformed=self.transform_position(position)
+                    position_transformed=self.transform_point(position)
                     if position_transformed is not None:
                         position_transformed=position_transformed.squeeze().tolist()
                     tracks[object][frame_num][track_id]['position_transformed']=position_transformed
