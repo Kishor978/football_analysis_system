@@ -1,7 +1,7 @@
 from utils.video_utils import video_read,video_write
 from trackers.tracker import Tracker
 from team_assignment import TeamAssigner,PlayerBallAssigner
-from camera_movement import CameraMovementEstimator
+from camera_movement import CameraMovementEstimator,PrespectiveTransformer
 import cv2
 import numpy as np
 
@@ -15,10 +15,14 @@ def main():
                                      read_from_stub=True,
                                      stub_path='stubs/trackers_stubs.pkl')
     
+    # get object positions
+    tracker.add_positions_to_tracks(tracks)
+    
     
     # camera movement estimation
     camera_movement_estimator=CameraMovementEstimator(video_frames[0])
     camera_movement_per_frame=camera_movement_estimator.get_camera_movement(video_frames,read_from_stub=True,stub_path='stubs/camera_movement_stubs.pkl'),
+    camera_movement_estimator.add_adjust_positions_to_tracks(tracks,camera_movement_per_frame[0])
     
     # interplatew ball positions
     tracks['ball']=tracker.interpolate_ball_positions(tracks['ball'])

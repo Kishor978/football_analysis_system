@@ -2,7 +2,7 @@ import pickle
 import cv2
 import os
 import numpy as np
-from utils import measure_xy_distance,measure_distance
+from utils import measure_xy_distance,measure_distance,get_foot_position,get_center
 
 
 class CameraMovementEstimator():
@@ -38,7 +38,8 @@ class CameraMovementEstimator():
                     tracks[object][frame_num][track_id]['position_adjusted'] = position_adjusted
                     
 
-
+                    
+                    
     def get_camera_movement(self,frames,read_from_stub=False, stub_path=None):
         # Read the stub 
         if read_from_stub and stub_path is not None and os.path.exists(stub_path):

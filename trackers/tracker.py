@@ -5,7 +5,7 @@ import pandas as pd
 import pickle
 import os
 import cv2
-from utils import get_bbox_width,get_center
+from utils import get_bbox_width,get_center,get_foot_position
 
 class Tracker:
     def __init__(self, model_path):
@@ -19,6 +19,19 @@ class Tracker:
             detections_batch=self.model.predict(frames[i:i+batch_size],conf=0.1)
             detections=detections+detections_batch
         return detections
+    
+    def add_positions_to_tracks(self,tracks):
+        for object, object_tracks in tracks.items():
+            for frame_num, track in enumerate(object_tracks):
+                for track_id, track_info in track.items():
+                    bounding_box = track_info['bbox']
+                    if object=="ball":
+                        position=get_center(bounding_box)
+                    else:
+                        position=get_foot_position(bounding_box)
+                    tracks[object][frame_num][track_id]['position'] = position
+                    
+
         
     def get_object_tracks(self, frames, read_from_stub=False, stub_path=None):
         
