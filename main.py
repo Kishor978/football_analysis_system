@@ -2,6 +2,7 @@ from utils.video_utils import video_read,video_write
 from trackers.tracker import Tracker
 from team_assignment import TeamAssigner,PlayerBallAssigner
 from camera_movement import CameraMovementEstimator,PrespectiveTransformer
+from trackers.speed_distance_estimatior import SpeedDistanceEstimator
 import cv2
 import numpy as np
 
@@ -23,13 +24,18 @@ def main():
     camera_movement_estimator=CameraMovementEstimator(video_frames[0])
     camera_movement_per_frame=camera_movement_estimator.get_camera_movement(video_frames,read_from_stub=True,stub_path='stubs/camera_movement_stubs.pkl'),
     camera_movement_estimator.add_adjust_positions_to_tracks(tracks,camera_movement_per_frame[0])
-    print(tracks['players'])
+    # print(tracks['players'])
     # prespective transformation
     view_transformer=PrespectiveTransformer()
     # view_transformer.add_transformed_position_to_track(tracks)
     
     # interplatew ball positions
     tracks['ball']=tracker.interpolate_ball_positions(tracks['ball'])
+    
+    # speed and distance estimation
+    speed_distance_estimator=SpeedDistanceEstimator()
+    speed_distance_estimator.add_speed_distance_to_tracks(tracks)
+    
     
     # Assgn Player teams
     team_assigner=TeamAssigner()
@@ -71,6 +77,11 @@ def main():
     
     # Drae the camera movement on the video
     output_video_frames=camera_movement_estimator.draw_camera_movement(output_video,camera_movement_per_frame)
+    
+    # draw the speed and distance on the video
+    speed_distance_estimator.draw_speed_and_distance(output_video_frames,tracks)
+    
+    # save the video
     video_write(output_video_frames,"output/video1.avi")
     
 if __name__ == "__main__":

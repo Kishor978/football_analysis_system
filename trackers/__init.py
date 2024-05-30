@@ -1,1 +1,2 @@
 from .tracker import Tracker
+from .speed_distance_estimatior import SpeedDistanceEstimator
